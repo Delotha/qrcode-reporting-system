@@ -3,9 +3,12 @@
 
 FROM python:3.11
 
-ADD ./requirements.txt /tmp/requirements.txt
-RUN pip install --user --no-cache-dir --no-warn-script-location -r /tmp/requirements.txt
+WORKDIR /app
 
-COPY . .
+COPY . /app
+
+RUN pip install --user --no-cache-dir --no-warn-script-location -r /app/requirements.txt
+
+EXPOSE 5000
 
 CMD ["python3", "main.py"]
