@@ -18,5 +18,9 @@ def submit():
     requests.post(webhook_url, data=data)
     return 'You selected: {}'.format(selected_option)
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
+
 if __name__ == '__main__':
     app.run(debug=False)
