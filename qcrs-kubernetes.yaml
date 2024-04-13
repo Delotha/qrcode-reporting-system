@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: qcrs
+    namespace: default
+spec:
+    replicas: 5
+    selector:
+        matchLabels:
+            app: qcrs
+    template:
+        metadata:
+            labels:
+                app: qcrs
+        spec:
+            containers:
+                - name: qcrs
+                  image: xelyrithx/qcrs:latest
+                  imagePullPolicy: Always
+                  ports:
+                    - containerPort: 5000
+                      name: web
+                      protocol: TCP
+                  env:
+                    - name: WEBHOOK_URL
+                      value: "" # Add your webhook url here
+                  readinessProbe:
+                    httpGet:
+                      path: /
+                      port: web
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+    name: qcrs-ingress
+    namespace: default
+spec:
+    rules:
+        - host: qcrs.com
+          http:
+            paths:
+            - backend:
+                service:
+                  name: qcrs-node
+                  port:
+                    number: 5000
+              path: /
+              pathType: Prefix
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+    name: qcrs-node
+    namespace: default
+spec:
+    type: NodePort
+    selector:
+        app: qcrs
+    ports:
+    - port: 5000
+      protocol: TCP
+      name: web
